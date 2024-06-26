@@ -5,23 +5,124 @@ class Utilities {
     constructor() {
     }
 
+    argvScene(argv) {
+        if (argv.length === 2) {
+            return false;
+        }
+        const argList = {
+            '--help': '',
+            '-h': '',
+            '--path': '',
+            '-p': '',
+            '--lang': '',
+            '-l': ''
+        };
+        const args = [];
+        for (const arg of argv) {
+            if (arg in argList) {
+                args.push(arg);
+            };
+        };
+        if (args) {
+            return args;
+        } else {
+            return false;
+        }
+    };
+
+    getDataFromArgs(argv) {
+        const data = {
+            path: false,
+            langFrom: false,
+            langTo: false
+        }
+        for (let i = 0; i < argv.length; i++) {
+            if (argv[i] == '--path' || argv[i] == '-p') {
+                const argContent = argv[i + 1];
+                if (argContent.match(/^(\/?[^\/]+\/?)+$/)) {
+                    data.path = argContent;
+                } else {
+                    process.stdout.write(`\x1B[36m${argContent}\x1B[31This is not a directory!\x1B[0m Try again\n`);
+                    return false;
+                }
+            } else if (argv[i] == '--lang' || argv[i] == '-l') {
+                const argContent = argv[i + 1];
+                if (argContent.match(/^(\w\w),(\w\w)$/m)) {
+                    data.langFrom = argContent.split(',')[0].trim().toLowerCase();
+                    data.langTo = argContent.split(',')[1].trim().toLowerCase();
+                } else {
+                    process.stdout.write('\x1B[31mIncorrect language codes!\x1B[0m Try again\n');
+                    return false;
+                }
+            }
+        }
+
+        if (data.path && data.langFrom && data.langTo) {
+            return data;
+        } else {
+            return false;
+        }
+    }
+
+    printHelp() {
+        const langList =
+            'Chinese: zh, English: en, Japanese: ja\n\t\t\tKorean: ko, French: fr, Spanish: es\n\t\t\tRussian: ru, German: de, Italian: it\n\t\t\tTurkish: tr, Portugese: pt, Vietnamese: vi\n\t\t\tIndonesian: id, Thai: th, Malay: ms\n\t\t\tArabic: ar, Hindi: hi, Norwegian: no\n\t\t\tPersian: fa'
+        process.stdout.write(`Options:\n\t-h, --help\tGet help\n\n\t-p, --path\tSpecify the directory with the .srt files\n\t\t\tExample: --path /home/username/srt_files\n\n\t-p, --path\tSpecify the languages (format: lang1,lang2)\n\t\t\tExample: --lang en,ru\n\n\tLanguages\t${langList}`)
+    }
+
     getDirectoryPath() {
         return new Promise((resolve, reject) => {
-            process.stdout.write('Specify the path to the directory with the \x1B[36m.srt\x1B[0m files that you want to translate below:\n');
-            process.stdin.resume();
-            process.stdin.setEncoding('utf8');
-
-            process.stdin.on('data', (inp) => {
-                if (inp.match(/\.\/(.+)/gm) || inp.match(/\/(.+)/gm)) {
-                    process.stdin.destroy();
-                    resolve(inp);
-                } else {
-                    process.stdout.write('\x1B[31mThis is not a directory!\x1B[0m Try again\n');
-                    this.getDirectoryPath().then(resolve);
-                }
-            });
+            const askForInput = () => {
+                process.stdout.write('Specify the path to the directory with the \x1B[36m.srt\x1B[0m files that you want to translate below:\n');
+                process.stdin.resume();
+                process.stdin.setEncoding('utf8');
+                process.stdin.once('data', (inp) => {
+                    inp = inp.trim();
+                    if (inp.match(/^(\/?[^\/]+\/?)+$/)) {
+                        process.stdin.pause();
+                        process.stdin.removeAllListeners();
+                        resolve(inp);
+                    } else {
+                        process.stdout.write('\x1B[31mThis is not a directory!\x1B[0m Try again\n');
+                        askForInput();
+                    }
+                });
+                process.stdin.on('error', (err) => {
+                    reject(err);
+                });
+            };
+            askForInput();
         });
     };
+
+    getTranslateLanguages() {
+        return new Promise((resolve, reject) => {
+            const askForInput = () => {
+                process.stdout.write('\nSeparated by commas, specify two language codes: the first one from which you want to translate, the second one to which you want to translate (example: en, ru):\n');
+                process.stdin.resume();
+                process.stdin.setEncoding('utf8');
+                process.stdin.once('data', (inp) => {
+                    inp = inp.trim();
+                    if (inp.match(/^(\w\w), (\w\w)$/m) || inp.match(/^(\w\w),(\w\w)$/m)) {
+                        const languages = {
+                            from: inp.split(',')[0].trim().toLowerCase(),
+                            to: inp.split(',')[1].trim().toLowerCase()
+                        }
+                        process.stdin.destroy();
+                        process.stdin.removeAllListeners();
+                        resolve(languages);
+                    } else {
+                        process.stdout.write('\x1B[31mIncorrect language codes!\x1B[0m Try again\n');
+                        askForInput();
+                    }
+                });
+                process.stdin.on('error', (err) => {
+                    reject(err);
+                });
+            };
+            askForInput();
+        });
+    }
 
     getFilesNameFromDirectory(path) {
         return new Promise((resolve, reject) => {
