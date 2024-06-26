@@ -23,24 +23,6 @@ class Utilities {
         });
     };
 
-    // getLanguages() {
-    //     return new Promise((resolve, reject) => {
-    //         process.stdout.write('Specify the path to the directory with the \x1B[36m.srt\x1B[0m files that you want to translate below:\n');
-    //         process.stdin.resume();
-    //         process.stdin.setEncoding('utf8');
-
-    //         process.stdin.on('data', (inp) => {
-    //             if (inp.match(/\.\/(.+)/gm) || inp.match(/\/(.+)/gm)) {
-    //                 process.stdin.destroy();
-    //                 resolve(inp);
-    //             } else {
-    //                 process.stdout.write('\x1B[31mThis is not a directory!\x1B[0m Try again\n');
-    //                 this.getDirectoryPath().then(resolve);
-    //             }
-    //         });
-    //     });
-    // };
-
     getFilesNameFromDirectory(path) {
         return new Promise((resolve, reject) => {
             if (path) {
@@ -120,21 +102,6 @@ class Utilities {
         }
 
         // делю весь перевод на слова, равномерно распределяю по рядам
-        // if (originalTextLines > ) {
-        //     const translatedWords = translatedText.split(' ');
-        //     const rows = [];
-        //     const wordsPerRow = Math.floor(translatedWords.length / originalTextLines);
-        //     const remainingWords = translatedWords.length % originalTextLines;
-
-        //     for (let i = 0; i < originalTextLines - 3; i++) {
-        //         rows.push(translatedWords.slice(i * wordsPerRow, (i + 1) * wordsPerRow));
-        //     }
-
-        //     const remainingRows = translatedWords.slice((originalTextLines - 3) * wordsPerRow);
-        //     for (let i = 0; i < 3; i++) {
-        //         rows.push(remainingRows.slice(i * remainingWords, (i + 1) * remainingWords));
-        //     }
-        // }
         const translatedWords = translatedText.split(' ');
         const rows = [];
         const wordsPerRow = Math.floor(translatedWords.length / originalTextLines);
