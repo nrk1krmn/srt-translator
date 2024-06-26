@@ -1,11 +1,20 @@
 import fs from 'fs';
 import { yandexTranslate } from './translator.js';
 
-class Utilities {
-    constructor() {
-    }
+export const log = {
 
-    argvScene(argv) {
+    cyan: (text) => {
+        return `\x1B[36m${text}\x1B[0m`
+    },
+
+    red: (text) => {
+        return `\x1B[31m${text}\x1B[0m`
+    }
+};
+
+export const utils = {
+
+    argvScene: (argv) => {
         if (argv.length === 2) {
             return false;
         }
@@ -28,9 +37,9 @@ class Utilities {
         } else {
             return false;
         }
-    };
+    },
 
-    getDataFromArgs(argv) {
+    getDataFromArgs: (argv) => {
         const data = {
             path: false,
             langFrom: false,
@@ -42,7 +51,7 @@ class Utilities {
                 if (argContent.match(/^(\/?[^\/]+\/?)+$/)) {
                     data.path = argContent;
                 } else {
-                    console.log(`\x1B[36m${argContent}\x1B[31This is not a directory!\x1B[0m Try again\n`);
+                    console.log(`${log.cyan(argContent)}${log.red('This is not a directory!')} Try again\n`);
                     return false;
                 }
             } else if (argv[i] == '--lang' || argv[i] == '-l') {
@@ -51,7 +60,7 @@ class Utilities {
                     data.langFrom = argContent.split(',')[0].trim().toLowerCase();
                     data.langTo = argContent.split(',')[1].trim().toLowerCase();
                 } else {
-                    console.log('\x1B[31mIncorrect language codes!\x1B[0m Try again\n');
+                    console.log(`${log.red('Incorrect language codes!')} Try again\n`);
                     return false;
                 }
             }
@@ -62,15 +71,15 @@ class Utilities {
         } else {
             return false;
         }
-    }
+    },
 
-    printHelp() {
+    printHelp: () => {
         const langList =
             'Chinese: zh, English: en, Japanese: ja\n\t\t\tKorean: ko, French: fr, Spanish: es\n\t\t\tRussian: ru, German: de, Italian: it\n\t\t\tTurkish: tr, Portugese: pt, Vietnamese: vi\n\t\t\tIndonesian: id, Thai: th, Malay: ms\n\t\t\tArabic: ar, Hindi: hi, Norwegian: no\n\t\t\tPersian: fa'
         console.log(`Options:\n\t-h, --help\tGet help\n\n\t-p, --path\tSpecify the directory with the .srt files\n\t\t\tExample: --path /home/username/srt_files\n\n\t-p, --path\tSpecify the languages (format: lang1,lang2)\n\t\t\tExample: --lang en,ru\n\n\tLanguages\t${langList}`)
-    }
+    },
 
-    getDirectoryPath() {
+    getDirectoryPath: () => {
         return new Promise((resolve, reject) => {
             const askForInput = () => {
                 console.log('Specify the path to the directory with the \x1B[36m.srt\x1B[0m files that you want to translate below:\n');
@@ -83,7 +92,7 @@ class Utilities {
                         process.stdin.removeAllListeners();
                         resolve(inp);
                     } else {
-                        console.log('\x1B[31mThis is not a directory!\x1B[0m Try again\n');
+                        console.log(`${log.red('This is not a directory!')} Try again\n`);
                         askForInput();
                     }
                 });
@@ -93,9 +102,9 @@ class Utilities {
             };
             askForInput();
         });
-    };
+    },
 
-    getTranslateLanguages() {
+    getTranslateLanguages: () => {
         return new Promise((resolve, reject) => {
             const askForInput = () => {
                 console.log('\nSeparated by commas, specify two language codes: the first one from which you want to translate, the second one to which you want to translate (example: en, ru):\n');
@@ -112,7 +121,7 @@ class Utilities {
                         process.stdin.removeAllListeners();
                         resolve(languages);
                     } else {
-                        console.log('\x1B[31mIncorrect language codes!\x1B[0m Try again\n');
+                        console.log(`${log.red('Incorrect language codes!')} Try again\n`);
                         askForInput();
                     }
                 });
@@ -122,14 +131,14 @@ class Utilities {
             };
             askForInput();
         });
-    }
+    },
 
-    getFilesNameFromDirectory(path) {
+    getFilesNameFromDirectory: (path) => {
         return new Promise((resolve, reject) => {
             if (path) {
                 const dir = fs.readdir(path.trim(), (err, files) => {
                     if (err && err.code == 'ENOENT') {
-                        console.log('\x1B[31mSuch a directory was not found!\x1B[0m\n');
+                        console.log(`${log.red('Such a directory was not found!')} Try again\n`);
                         return false;
                     } else if (err) {
                         console.error(err);
@@ -142,23 +151,23 @@ class Utilities {
                 return false;
             }
         });
-    };
+    },
 
-    checkSrtFilesInDirectory(arr) {
+    checkSrtFilesInDirectory: (arr) => {
         for (const file of arr) {
             if (file.match(/(.+)\.srt/gm)) {
                 return true;
             }
         }
         return false;
-    };
+    },
 
-    getFileString(path) {
+    getFileString: (path) => {
         const data = fs.readFileSync(path);
         return data.toString();
-    };
+    },
 
-    getDistributionLinesCount(totalLinesCount) {
+    getDistributionLinesCount: (totalLinesCount) => {
         if (totalLinesCount < 50) {
             return 1;
         }
@@ -167,9 +176,9 @@ class Utilities {
             count += 1.7;
         }
         return Math.ceil(count);
-    }
+    },
 
-    async translateTextFromSrtString(srtString, inputLang, outputLang) {
+    translateTextFromSrtString: async (srtString, inputLang, outputLang) => {
         srtString = srtString.trim();
         const lines = srtString.split(/\r\n/); // разбиваю текст на строки
 
@@ -208,7 +217,7 @@ class Utilities {
         const wordsPerRow = Math.floor(translatedWords.length / originalTextLines);
         const remainingWords = translatedWords.length % originalTextLines;
 
-        const distributionLinesCount = this.getDistributionLinesCount(originalTextLines);
+        const distributionLinesCount = utils.getDistributionLinesCount(originalTextLines);
 
         for (let i = 0; i < originalTextLines - distributionLinesCount; i++) {
             rows.push(translatedWords.slice(i * wordsPerRow, (i + 1) * wordsPerRow));
@@ -242,5 +251,3 @@ class Utilities {
         return lines.join('\r\n');
     }
 }
-
-export default Utilities;

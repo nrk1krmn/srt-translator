@@ -1,40 +1,68 @@
 import fs from 'fs';
 ///
-import Utilities from './src/utilities.js';
+import { utils, log } from './src/utilities.js';
 ///
-const Utils = new Utilities();
 
-const args = Utils.argvScene(process.argv)
-if (!args) {
-    console.log('You did not specify arguments or specified non-existent ones. Use --help');
-} else if (args.includes('--help') || args.includes('-h')) {
-    Utils.printHelp();
-} else if ((args.includes('--path') || args.includes('-p')) && (args.includes('--lang') || args.includes('-l'))) {
-    const argsData = Utils.getDataFromArgs(process.argv);
-    if (argsData) {
-        const pathFiles = await Utils.getFilesNameFromDirectory(argsData.path);
-        if (pathFiles.length && Utils.checkSrtFilesInDirectory(pathFiles)) {
-            for (const pathFile of pathFiles) {
-                if (pathFile.match(/(.+)\.srt/gm)) {
-                    const filePath = argsData.path.trim() + "/" + pathFile.trim();
-                    const file = Utils.getFileString(filePath);
-                    if (file.length) {
-                        const result = await Utils.translateTextFromSrtString(file, argsData.langFrom, argsData.langTo);
-                        if (result) {
-                            fs.writeFileSync(filePath, Buffer(result));
-                        } else {
-                            console.log(`\x1B[36m${pathFile}\x1B[0m is empty or broken`);
-                        }
-                    } else {
-                        console.log(`\x1B[36m${pathFile}\x1B[0m is empty or broken`);
-                    }
-                } else {
-                    continue;
-                }
-            }
+(async () => {
+    const args = utils.argvScene(process.argv);
+    const start = Date.now();
+
+    if (!args) {
+        console.log('You did not specify arguments or specified non-existent ones. Use --help');
+        return;
+    }
+
+    if (args.includes('--help') || args.includes('-h')) {
+        utils.printHelp();
+        return;
+    }
+
+    if (!(args.includes('--path') || args.includes('-p')) || !(args.includes('--lang') || args.includes('-l'))) {
+        console.log('You must use the --path and --lang arguments');
+        return;
+    }
+
+    const argsData = utils.getDataFromArgs(process.argv);
+    if (!argsData) {
+        return;
+    }
+
+    const pathFiles = await utils.getFilesNameFromDirectory(argsData.path);
+    if (!pathFiles.length || !utils.checkSrtFilesInDirectory(pathFiles)) {
+        return;
+    }
+
+    console.log('');
+    let writtenFilesCount = 0;
+    for (const pathFile of pathFiles) {
+        if (!pathFile.match(/(.+)\.srt/gm)) {
+            continue;
+        }
+
+        const filePath = `${argsData.path.trim()}/${pathFile.trim()}`;
+        const file = utils.getFileString(filePath);
+
+        if (!file.length) {
+            console.log(`${log.cyan(pathFile)} is empty or broken`);
+            continue;
+        }
+
+        const result = await utils.translateTextFromSrtString(file, argsData.langFrom, argsData.langTo);
+        if (!result) {
+            console.log(`${log.cyan(pathFile)} is empty or broken`);
+            continue;
+        }
+
+        try {
+            fs.writeFileSync(filePath, result);
+            console.log(`${log.cyan(pathFile)} successfully written!`);
+            writtenFilesCount++;
+        } catch (error) {
+            console.log(error);
+            continue;
         }
     }
-} else {
-    console.log('You must use the --path and --lang arguments');
-}
 
+    const end = (Date.now() - start) / 1000;
+    console.log(`\n${log.cyan("Success!")}\nTranslated files: ${writtenFilesCount}\nTime spent: ${end.toFixed(2)} secs.`);
+})();
