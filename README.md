@@ -6,7 +6,8 @@ Script for translating subtitles in .srt format
 ![GitHub Repo stars](https://img.shields.io/github/stars/nrk1krmn/srt-translator)
 
 ## Installation (All platforms)
-1. Install Node.js
+1. Download and install Node.js
+```https://nodejs.org/``` or ```https://volta.sh/```
 
 2. Clone repo
 
