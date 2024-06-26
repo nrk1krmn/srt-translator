@@ -42,7 +42,7 @@ class Utilities {
                 if (argContent.match(/^(\/?[^\/]+\/?)+$/)) {
                     data.path = argContent;
                 } else {
-                    process.stdout.write(`\x1B[36m${argContent}\x1B[31This is not a directory!\x1B[0m Try again\n`);
+                    console.log(`\x1B[36m${argContent}\x1B[31This is not a directory!\x1B[0m Try again\n`);
                     return false;
                 }
             } else if (argv[i] == '--lang' || argv[i] == '-l') {
@@ -51,7 +51,7 @@ class Utilities {
                     data.langFrom = argContent.split(',')[0].trim().toLowerCase();
                     data.langTo = argContent.split(',')[1].trim().toLowerCase();
                 } else {
-                    process.stdout.write('\x1B[31mIncorrect language codes!\x1B[0m Try again\n');
+                    console.log('\x1B[31mIncorrect language codes!\x1B[0m Try again\n');
                     return false;
                 }
             }
@@ -67,13 +67,13 @@ class Utilities {
     printHelp() {
         const langList =
             'Chinese: zh, English: en, Japanese: ja\n\t\t\tKorean: ko, French: fr, Spanish: es\n\t\t\tRussian: ru, German: de, Italian: it\n\t\t\tTurkish: tr, Portugese: pt, Vietnamese: vi\n\t\t\tIndonesian: id, Thai: th, Malay: ms\n\t\t\tArabic: ar, Hindi: hi, Norwegian: no\n\t\t\tPersian: fa'
-        process.stdout.write(`Options:\n\t-h, --help\tGet help\n\n\t-p, --path\tSpecify the directory with the .srt files\n\t\t\tExample: --path /home/username/srt_files\n\n\t-p, --path\tSpecify the languages (format: lang1,lang2)\n\t\t\tExample: --lang en,ru\n\n\tLanguages\t${langList}`)
+        console.log(`Options:\n\t-h, --help\tGet help\n\n\t-p, --path\tSpecify the directory with the .srt files\n\t\t\tExample: --path /home/username/srt_files\n\n\t-p, --path\tSpecify the languages (format: lang1,lang2)\n\t\t\tExample: --lang en,ru\n\n\tLanguages\t${langList}`)
     }
 
     getDirectoryPath() {
         return new Promise((resolve, reject) => {
             const askForInput = () => {
-                process.stdout.write('Specify the path to the directory with the \x1B[36m.srt\x1B[0m files that you want to translate below:\n');
+                console.log('Specify the path to the directory with the \x1B[36m.srt\x1B[0m files that you want to translate below:\n');
                 process.stdin.resume();
                 process.stdin.setEncoding('utf8');
                 process.stdin.once('data', (inp) => {
@@ -83,7 +83,7 @@ class Utilities {
                         process.stdin.removeAllListeners();
                         resolve(inp);
                     } else {
-                        process.stdout.write('\x1B[31mThis is not a directory!\x1B[0m Try again\n');
+                        console.log('\x1B[31mThis is not a directory!\x1B[0m Try again\n');
                         askForInput();
                     }
                 });
@@ -98,7 +98,7 @@ class Utilities {
     getTranslateLanguages() {
         return new Promise((resolve, reject) => {
             const askForInput = () => {
-                process.stdout.write('\nSeparated by commas, specify two language codes: the first one from which you want to translate, the second one to which you want to translate (example: en, ru):\n');
+                console.log('\nSeparated by commas, specify two language codes: the first one from which you want to translate, the second one to which you want to translate (example: en, ru):\n');
                 process.stdin.resume();
                 process.stdin.setEncoding('utf8');
                 process.stdin.once('data', (inp) => {
@@ -112,7 +112,7 @@ class Utilities {
                         process.stdin.removeAllListeners();
                         resolve(languages);
                     } else {
-                        process.stdout.write('\x1B[31mIncorrect language codes!\x1B[0m Try again\n');
+                        console.log('\x1B[31mIncorrect language codes!\x1B[0m Try again\n');
                         askForInput();
                     }
                 });
@@ -129,7 +129,7 @@ class Utilities {
             if (path) {
                 const dir = fs.readdir(path.trim(), (err, files) => {
                     if (err && err.code == 'ENOENT') {
-                        process.stdout.write('\x1B[31mSuch a directory was not found!\x1B[0m\n');
+                        console.log('\x1B[31mSuch a directory was not found!\x1B[0m\n');
                         return false;
                     } else if (err) {
                         console.error(err);

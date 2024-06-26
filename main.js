@@ -6,7 +6,7 @@ const Utils = new Utilities();
 
 const args = Utils.argvScene(process.argv)
 if (!args) {
-    process.stdout.write('You did not specify arguments or specified non-existent ones. Use --help');
+    console.log('You did not specify arguments or specified non-existent ones. Use --help');
 } else if (args.includes('--help') || args.includes('-h')) {
     Utils.printHelp();
 } else if ((args.includes('--path') || args.includes('-p')) && (args.includes('--lang') || args.includes('-l'))) {
@@ -23,10 +23,10 @@ if (!args) {
                         if (result) {
                             fs.writeFileSync(filePath, Buffer(result));
                         } else {
-                            process.stdout.write(`\x1B[36m${pathFile}\x1B[0m is empty or broken`);
+                            console.log(`\x1B[36m${pathFile}\x1B[0m is empty or broken`);
                         }
                     } else {
-                        process.stdout.write(`\x1B[36m${pathFile}\x1B[0m is empty or broken`);
+                        console.log(`\x1B[36m${pathFile}\x1B[0m is empty or broken`);
                     }
                 } else {
                     continue;
@@ -35,6 +35,6 @@ if (!args) {
         }
     }
 } else {
-    process.stdout.write('You must use the --path and --lang arguments');
+    console.log('You must use the --path and --lang arguments');
 }
 
