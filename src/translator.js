@@ -31,24 +31,4 @@ export async function yandexTranslate(text, inputLang, outputLang) {
     }
 }
 
-async function translate(string, inputLang, outputLang) {
-    if (string && inputLang && outputLang) {
-        const response = await fetch("http://127.0.0.1:5000/translate", {
-            method: "POST",
-            body: JSON.stringify({
-                q: string,
-                source: inputLang,
-                target: outputLang,
-                format: "text",
-                api_key: ""
-            }),
-            headers: { "Content-Type": "application/json" }
-        });
-        const result = await response.json();
-        return result.translatedText;
-    } else {
-        return false;
-    }
-}
-
-export default { translate, yandexTranslate }
+export default { yandexTranslate }

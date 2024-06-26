@@ -1,5 +1,5 @@
 import fs from 'fs';
-import Translator, { yandexTranslate } from './translator.js';
+import { yandexTranslate } from './translator.js';
 
 class Utilities {
     constructor() {
