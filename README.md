@@ -7,6 +7,7 @@ Script for translating subtitles in .srt format
 
 ## Installation (All platforms)
 1. Download and install Node.js
+
 ```https://nodejs.org/``` or ```https://volta.sh/```
 
 2. Clone repo
